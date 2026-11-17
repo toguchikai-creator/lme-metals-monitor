@@ -1,0 +1,96 @@
+# 毎日の自動更新と GitHub Pages への公開
+#   1. 価格を更新 → 2. ニュースを取得・翻訳 → 3. 表示用データを生成 → 変更があればコミット
+#   4. docs/ を GitHub Pages に公開
+# 価格かニュースが失敗しても残りの処理は続け、最後に失敗としてログに残す。
+name: daily-update
+
+on:
+  schedule:
+    - cron: '0 14 * * 1-5'   # 平日 23:00 JST（LME公式価格の公表後）
+  workflow_dispatch:          # Actions 画面から手動実行
+  push:                       # 画面（docs/）を直したときはすぐ公開し直す
+    branches: [main]
+    paths: ['docs/**', '!docs/data/**']
+
+concurrency:
+  group: daily-update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    if: github.event_name != 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: ライブラリをインストール
+        run: pip install -r requirements.txt
+
+      - name: 価格を更新（Westmetall）
+        id: prices
+        continue-on-error: true
+        run: python scripts/update_prices.py
+
+      - name: ニュースを取得・翻訳（Google News + Claude）
+        id: news
+        continue-on-error: true
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python scripts/fetch_news.py
+
+      - name: 表示用データを生成
+        run: python scripts/build_site_data.py
+
+      - name: 変更があればコミットして push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data docs/data
+          if git diff --cached --quiet; then
+            echo "変更はありません"
+          else
+            git commit -m "データ更新 $(TZ=Asia/Tokyo date '+%Y-%m-%d %H:%M') JST"
+            git push
+          fi
+
+      - name: 失敗したステップを報告
+        if: steps.prices.outcome == 'failure' || steps.news.outcome == 'failure'
+        run: |
+          [ "${{ steps.prices.outcome }}" = "failure" ] && echo "::error::価格の更新に失敗しました（上の「価格を更新」のログを確認）"
+          [ "${{ steps.news.outcome }}" = "failure" ] && echo "::error::ニュースの取得・翻訳に失敗しました（上の「ニュースを取得・翻訳」のログを確認）"
+          exit 1
+
+  deploy:
+    needs: update
+    # update が失敗・スキップでも、その時点のデータで公開する
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main   # update ジョブがコミットした最新版を使う
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+      - name: GitHub Pages に公開
+        id: deployment
+        uses: actions/deploy-pages@v4

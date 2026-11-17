@@ -1,0 +1,152 @@
+/* 色はすべてここで定義（ライト／ダーク） */
+:root {
+  color-scheme: light;
+  --bg: #f6f5f2;
+  --surface: #fcfcfb;
+  --border: #e3e1dc;
+  --grid: #ebe9e4;
+  --text: #0b0b0b;
+  --text-2: #52514e;
+  --text-3: #74726d;
+  --accent: #2a78d6;        /* チャートの線・選択中のタブ */
+  --accent-soft: #e8f0fb;
+  --up: #006300;            /* 上昇（文字用。▲と併用） */
+  --down: #c42b2b;          /* 下落（文字用。▼と併用） */
+  --high: #c42b2b;          /* 重要度「高」 */
+  --high-soft: #fbeaea;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #121211;
+    --surface: #1a1a19;
+    --border: #33332f;
+    --grid: #2a2a27;
+    --text: #f0efec;
+    --text-2: #c3c2b7;
+    --text-3: #9a998f;
+    --accent: #3987e5;
+    --accent-soft: #1d2a3b;
+    --up: #4cc14c;
+    --down: #ff7b7b;
+    --high: #ff7b7b;
+    --high-soft: #3a1f1f;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #121211;
+  --surface: #1a1a19;
+  --border: #33332f;
+  --grid: #2a2a27;
+  --text: #f0efec;
+  --text-2: #c3c2b7;
+  --text-3: #9a998f;
+  --accent: #3987e5;
+  --accent-soft: #1d2a3b;
+  --up: #4cc14c;
+  --down: #ff7b7b;
+  --high: #ff7b7b;
+  --high-soft: #3a1f1f;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Segoe UI", sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+}
+a { color: var(--accent); }
+.wrap { max-width: 960px; margin: 0 auto; padding: 0 16px; }
+
+/* ヘッダー */
+.site-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 0 12px; }
+.site-header h1 { margin: 0; font-size: 20px; letter-spacing: .01em; }
+.meta { margin: 4px 0 0; display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 13px; color: var(--text-2); }
+.meta strong { color: var(--text); font-weight: 600; margin-left: 4px; font-variant-numeric: tabular-nums; }
+
+section { margin-top: 28px; }
+.section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+.section-head h2 { margin: 0; font-size: 17px; }
+.unit, .hint { font-size: 12px; color: var(--text-3); }
+.hint { margin: 6px 0 0; }
+
+/* 価格一覧：スマホでは横スクロール、金属名の列は固定 */
+.table-scroll {
+  overflow-x: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  -webkit-overflow-scrolling: touch;
+}
+.table-scroll:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.price-table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.price-table th, .price-table td { padding: 10px 12px; text-align: right; border-bottom: 1px solid var(--border); }
+.price-table thead th { font-size: 12px; font-weight: 600; color: var(--text-2); }
+.price-table tbody tr:last-child td, .price-table tbody tr:last-child th { border-bottom: 0; }
+.price-table .col-metal {
+  position: sticky; left: 0; z-index: 1;
+  text-align: left; background: var(--surface);
+  box-shadow: 1px 0 0 var(--border);
+}
+.price-table tbody tr { cursor: pointer; }
+.price-table tbody tr:hover td, .price-table tbody tr:hover th { background: var(--accent-soft); }
+.price-table tbody tr.selected th { box-shadow: inset 3px 0 0 var(--accent), 1px 0 0 var(--border); }
+.metal-name { font-weight: 600; }
+.metal-en { display: block; font-size: 11px; color: var(--text-3); font-weight: 400; }
+.price { font-weight: 600; }
+.chg.up { color: var(--up); }
+.chg.down { color: var(--down); }
+.chg.flat, .chg.na { color: var(--text-3); }
+
+/* チャート */
+.tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab, .period {
+  flex: none;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-2);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font: inherit; font-size: 14px;
+  cursor: pointer;
+  min-height: 36px;
+}
+.tab[aria-selected="true"], .period[aria-pressed="true"] {
+  background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600;
+}
+.tab:focus-visible, .period:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.chart-card { margin-top: 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 12px 8px; }
+.chart-top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+.chart-summary { font-variant-numeric: tabular-nums; }
+.chart-summary .big { font-size: 24px; font-weight: 700; line-height: 1.2; }
+.chart-summary .sub { font-size: 13px; color: var(--text-2); }
+.nowrap { white-space: nowrap; }
+.periods { display: flex; gap: 4px; }
+.period { padding: 4px 10px; font-size: 13px; min-height: 32px; min-width: 44px; }
+.chart-box { position: relative; height: 280px; }
+@media (min-width: 720px) { .chart-box { height: 360px; } }
+
+/* ニュース */
+.news-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.news-item { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
+.news-item.high { border-left: 3px solid var(--high); }
+.news-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 4px; font-size: 12px; }
+.tag { border: 1px solid var(--border); border-radius: 4px; padding: 0 6px; color: var(--text-2); }
+.tag.high { border-color: var(--high); background: var(--high-soft); color: var(--high); font-weight: 600; }
+.news-item h3 { margin: 0; font-size: 15px; line-height: 1.5; }
+.news-item p { margin: 6px 0 0; font-size: 14px; color: var(--text-2); }
+.news-foot { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 8px; font-size: 12px; color: var(--text-3); }
+.news-foot a { overflow-wrap: anywhere; }
+.empty { color: var(--text-3); font-size: 14px; padding: 8px 2px; }
+
+/* フッター */
+.site-footer { margin-top: 40px; padding: 20px 0 32px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-3); }
+.site-footer p { margin: 0 0 6px; }
+
+.error { background: var(--high-soft); color: var(--high); padding: 12px 14px; border-radius: 10px; margin-top: 20px; }

@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LME Metals Monitor</title>
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <h1>LME Metals Monitor</h1>
+      <p class="meta">
+        <span>基準日（LME営業日）<strong id="as-of">—</strong></span>
+        <span>最終更新 <strong id="generated-at">—</strong> JST</span>
+      </p>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section aria-labelledby="prices-h">
+      <div class="section-head">
+        <h2 id="prices-h">価格一覧</h2>
+        <span class="unit">USD/t・騰落率は現物価格</span>
+      </div>
+      <div class="table-scroll" tabindex="0" aria-label="価格一覧（横にスクロールできます）">
+        <table class="price-table">
+          <thead>
+            <tr>
+              <th scope="col" class="col-metal">金属</th>
+              <th scope="col">現物</th>
+              <th scope="col">3カ月物</th>
+              <th scope="col">1日</th>
+              <th scope="col">1週</th>
+              <th scope="col">1カ月</th>
+              <th scope="col">1年</th>
+              <th scope="col">3年</th>
+              <th scope="col">5年</th>
+            </tr>
+          </thead>
+          <tbody id="price-rows"></tbody>
+        </table>
+      </div>
+      <p class="hint">行をタップするとチャートに表示します</p>
+    </section>
+
+    <section aria-labelledby="chart-h" id="chart-section">
+      <div class="section-head">
+        <h2 id="chart-h">現物価格の推移</h2>
+      </div>
+      <div class="tabs" role="tablist" aria-label="金属" id="metal-tabs"></div>
+      <div class="chart-card">
+        <div class="chart-top">
+          <div class="chart-summary" id="chart-summary" aria-live="polite"></div>
+          <div class="periods" role="group" aria-label="期間" id="period-buttons"></div>
+        </div>
+        <div class="chart-box"><canvas id="price-chart" aria-label="現物価格の折れ線グラフ" role="img"></canvas></div>
+      </div>
+    </section>
+
+    <section aria-labelledby="news-nickel-h">
+      <div class="section-head">
+        <h2 id="news-nickel-h">ステンレス関連（ニッケル）</h2>
+      </div>
+      <ul class="news-list" id="news-nickel"></ul>
+    </section>
+
+    <section aria-labelledby="news-nonferrous-h">
+      <div class="section-head">
+        <h2 id="news-nonferrous-h">非鉄全般（銅・アルミ）</h2>
+      </div>
+      <ul class="news-list" id="news-nonferrous"></ul>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>出典：価格・在庫 <a href="https://www.westmetall.com/en/markdaten.php" rel="noopener">Westmetall</a>（LME Official Prices）／ニュース Google News（日本語訳・要約は Claude による自動生成）</p>
+      <p>価格は参考値です。取引の判断には LME 公式データをご確認ください。個人の情報収集用です。</p>
+    </div>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
